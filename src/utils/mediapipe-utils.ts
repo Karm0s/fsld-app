@@ -13,16 +13,23 @@ import {
 import { Camera } from "@mediapipe/camera_utils"
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils"
 
+export type Keypoints = typeof Array<number>[][]
+export type OnKeypointsCallback = (keypoints: Keypoints) => void
 export class MediapipeUtils {
-	holistic: Holistic // holistic model
-	camera: Camera // Camera object to acess webcam and pass data to holistic model
-	drawCanvas: HTMLCanvasElement // Drawing canvas to draw mediapipe landmarks
-	canvasCtx: CanvasRenderingContext2D // Drawing canvas context
-	resultsBuffer!: any[] // Array to store mediapipe data
-	maxBufferSize: number // Max number of items (frames) to store in buffer before purging
+	holistic: Holistic
+	camera: Camera
+	inputVideo: HTMLVideoElement
+	drawCanvas: HTMLCanvasElement
+	canvasCtx: CanvasRenderingContext2D
+	resultsBuffer!: any
+	maxBufferSize: number
+	callbackOnKeypoints: OnKeypointsCallback
 
-	constructor(videoElement: HTMLVideoElement, drawCanvas: HTMLCanvasElement, maxBufferSize: number = 60) {
+	constructor(videoElement: HTMLVideoElement, drawCanvas: HTMLCanvasElement, maxBufferSize: number = 60, callbackOnKeypoints: OnKeypointsCallback) {
+		this.resultsBuffer = []
+		this.callbackOnKeypoints = callbackOnKeypoints
 		this.maxBufferSize = maxBufferSize
+		this.inputVideo = videoElement
 		// Holistic model to make predictions
 		this.holistic = new Holistic({
 			locateFile: (file) => {
@@ -38,7 +45,9 @@ export class MediapipeUtils {
 			minDetectionConfidence: 0.5,
 			minTrackingConfidence: 0.5,
 		})
-		this.holistic.onResults(this.onResults)
+		this.holistic.onResults((results: any) => {
+			this.onResults(results)
+		})
 
 		// Camera element to capture video feed
 		this.camera = new Camera(videoElement, {
@@ -53,17 +62,31 @@ export class MediapipeUtils {
 		this.canvasCtx = this.drawCanvas.getContext("2d")!
 	}
 
-	saveInBuffer(results: any) {
+	saveInBuffer(results: any) : void {
+		this.resultsBuffer.push(results)
 		if (this.resultsBuffer.length === this.maxBufferSize) {
 			this.resultsBuffer = []
 		}
-		this.resultsBuffer.push(results)
 	}
 
-	onResults(results: any) {
+	extractKeypoints(results: any) : Keypoints {
+		const pointDeconstructor = function (point: any) {
+			return Object.values(point)
+		}
+		const pose = results.poseLandmarks?.map(pointDeconstructor) || new Array(132).fill(0)
+		const face = results.faceLandmarks?.map(pointDeconstructor) || new Array(1404).fill(0)
+		const lh = results.leftHandLandmarks?.map(pointDeconstructor) || new Array(63).fill(0)
+		const rh = results.rightHandLandmarks?.map(pointDeconstructor) || new Array(63).fill(0)
+
+		return [pose.flat(), face.flat(), lh.flat(), rh.flat()]
+	}
+
+	drawLandmarks(results: any) {
 		this.canvasCtx.save()
 		this.canvasCtx.clearRect(0, 0, this.drawCanvas.width, this.drawCanvas.height)
-		this.canvasCtx.drawImage(results.segmentationMask, 0, 0, this.drawCanvas.width, this.drawCanvas.height)
+		// if (results.segmentationMask) {
+		// 	this.canvasCtx.drawImage(results.segmentationMask, 0, 0, this.drawCanvas.width, this.drawCanvas.height)
+		// }
 
 		// // Only overwrite existing pixels.
 		this.canvasCtx.globalCompositeOperation = "source-in"
@@ -75,14 +98,29 @@ export class MediapipeUtils {
 		this.canvasCtx.drawImage(results.image, 0, 0, this.drawCanvas.width, this.drawCanvas.height)
 
 		this.canvasCtx.globalCompositeOperation = "source-over"
-		drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 2 })
-		drawLandmarks(this.canvasCtx, results.poseLandmarks, { color: "#FF0000", lineWidth: 1 })
-		drawConnectors(this.canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, { color: "#C0C0C070", lineWidth: 1 })
-		drawConnectors(this.canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, { color: "#CC0000", lineWidth: 2 })
-		drawLandmarks(this.canvasCtx, results.leftHandLandmarks, { color: "#00FF00", lineWidth: 1 })
-		drawConnectors(this.canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, { color: "#00CC00", lineWidth: 2 })
-		drawLandmarks(this.canvasCtx, results.rightHandLandmarks, { color: "#FF0000", lineWidth: 1 })
+		if (results.poseLandmarks) {
+			drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 2 })
+			drawLandmarks(this.canvasCtx, results.poseLandmarks, { color: "#FF0000", lineWidth: 1 })
+		}
+		if (results.faceLandmarks) {
+			drawConnectors(this.canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, { color: "#C0C0C070", lineWidth: 1 })
+		}
+		if (results.leftHandLandmarks) {
+			drawConnectors(this.canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, { color: "#CC0000", lineWidth: 2 })
+			drawLandmarks(this.canvasCtx, results.leftHandLandmarks, { color: "#00FF00", lineWidth: 1 })
+		}
+		if (results.rightHandLandmarks) {
+			drawConnectors(this.canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, { color: "#00CC00", lineWidth: 2 })
+			drawLandmarks(this.canvasCtx, results.rightHandLandmarks, { color: "#FF0000", lineWidth: 1 })
+		}
 		this.canvasCtx.restore()
+	}
+
+	onResults(results: any) {
+		const keypoints = this.extractKeypoints(results)
+		this.saveInBuffer(keypoints)
+		this.drawLandmarks(results)
+		this.callbackOnKeypoints(keypoints)
 	}
 
 	// Start webcam capture and mediapipe detection
@@ -92,5 +130,9 @@ export class MediapipeUtils {
 	// Stop webcam capture and mediapipe detection
 	stop() {
 		this.camera.stop()
+	}
+
+	getResults(): Keypoints[] {
+		return this.resultsBuffer
 	}
 }
