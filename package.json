@@ -13,6 +13,7 @@
     "@mediapipe/control_utils": "^0.6.1629159505",
     "@mediapipe/drawing_utils": "^0.3.1620248257",
     "@mediapipe/holistic": "^0.5.1635989137",
+    "@types/buffers": "^0.1.31",
     "socket.io-client": "^4.5.1",
     "vue": "^3.2.37"
   },

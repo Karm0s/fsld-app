@@ -25,7 +25,7 @@ export class MediapipeUtils {
 	maxBufferSize: number
 	callbackOnKeypoints: OnKeypointsCallback
 
-	constructor(videoElement: HTMLVideoElement, drawCanvas: HTMLCanvasElement, maxBufferSize: number = 60, callbackOnKeypoints: OnKeypointsCallback) {
+	constructor(videoElement: HTMLVideoElement, drawCanvas: HTMLCanvasElement, maxBufferSize: number = 30, callbackOnKeypoints: OnKeypointsCallback) {
 		this.resultsBuffer = []
 		this.callbackOnKeypoints = callbackOnKeypoints
 		this.maxBufferSize = maxBufferSize
@@ -64,9 +64,6 @@ export class MediapipeUtils {
 
 	saveInBuffer(results: any) : void {
 		this.resultsBuffer.push(results)
-		if (this.resultsBuffer.length === this.maxBufferSize) {
-			this.resultsBuffer = []
-		}
 	}
 
 	extractKeypoints(results: any) : Keypoints {
@@ -120,7 +117,11 @@ export class MediapipeUtils {
 		const keypoints = this.extractKeypoints(results)
 		this.saveInBuffer(keypoints)
 		this.drawLandmarks(results)
-		this.callbackOnKeypoints(keypoints)
+		if (this.resultsBuffer.length == this.maxBufferSize){
+			console.log('here')
+			this.callbackOnKeypoints(this.resultsBuffer)
+			this.resultsBuffer = []
+		}
 	}
 
 	// Start webcam capture and mediapipe detection

@@ -1,28 +1,27 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { io } from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
 
 import {MediapipeUtils, Keypoints} from './utils/mediapipe-utils'
 
-
 let mediapipeUtils!: MediapipeUtils
+let socket:Socket
 
 const videoElement = ref(null)
 const outputCanvas = ref(null)
 
 function onMediapipeResults(keypoints: Keypoints):void {
-	// console.log(keypoints)
-
-	// Now that data is passed here after mediapipe detection, handle sending to server
+	console.log(keypoints.length)
+	socket.emit('mediapipe-data', keypoints)
 }
 
 onMounted(() => {
-	// let socket = io('http://127.0.0.1:5000')
-	// socket.on('after connect', (msg) => {
-	// 	console.log(msg.connected)
-	// })
+	socket = io('http://127.0.0.1:5000')
+	socket.on('after connect', (msg) => {
+		console.log(msg.connected)
+	})
 	if (videoElement.value && outputCanvas.value) {
-		mediapipeUtils = new MediapipeUtils(videoElement.value, outputCanvas.value, 60, onMediapipeResults)
+		mediapipeUtils = new MediapipeUtils(videoElement.value, outputCanvas.value, 30, onMediapipeResults)
 	}
 
 })
