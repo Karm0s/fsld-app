@@ -41,7 +41,6 @@ export class MediapipeUtils {
 			smoothLandmarks: true,
 			enableSegmentation: true,
 			smoothSegmentation: true,
-			refineFaceLandmarks: true,
 			minDetectionConfidence: 0.5,
 			minTrackingConfidence: 0.5,
 		})
@@ -68,14 +67,19 @@ export class MediapipeUtils {
 
 	extractKeypoints(results: any) : Keypoints {
 		const pointDeconstructor = function (point: any) {
-			return Object.values(point)
+			return [point.x, point.y, point.z]
 		}
-		const pose = results.poseLandmarks?.map(pointDeconstructor) || new Array(132).fill(0)
+		const pose = results.poseLandmarks?.map((point:any) => {
+			let values = [point.x, point.y, point.z]
+			values.push(point.visibility || 0)
+			return values
+		}) || new Array(132).fill(0)
 		const face = results.faceLandmarks?.map(pointDeconstructor) || new Array(1404).fill(0)
 		const lh = results.leftHandLandmarks?.map(pointDeconstructor) || new Array(63).fill(0)
 		const rh = results.rightHandLandmarks?.map(pointDeconstructor) || new Array(63).fill(0)
-
-		return [pose.flat(), face.flat(), lh.flat(), rh.flat()]
+		let val = [...pose.flat(), ...face.flat(), ...lh.flat(), ...rh.flat()]
+		// console.log(val)
+		return val
 	}
 
 	drawLandmarks(results: any) {
@@ -118,7 +122,6 @@ export class MediapipeUtils {
 		this.saveInBuffer(keypoints)
 		this.drawLandmarks(results)
 		if (this.resultsBuffer.length == this.maxBufferSize){
-			console.log('here')
 			this.callbackOnKeypoints(this.resultsBuffer)
 			this.resultsBuffer = []
 		}

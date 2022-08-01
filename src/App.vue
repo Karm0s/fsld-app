@@ -1,29 +1,33 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { io, Socket } from 'socket.io-client'
 
+import { SocketioService } from './services/SocketioService'
 import {MediapipeUtils, Keypoints} from './utils/mediapipe-utils'
 
 let mediapipeUtils!: MediapipeUtils
-let socket:Socket
+let socket:SocketioService
+let predictions = ref<string[]>([])
 
 const videoElement = ref(null)
 const outputCanvas = ref(null)
 
+
 function onMediapipeResults(keypoints: Keypoints):void {
-	console.log(keypoints.length)
-	socket.emit('mediapipe-data', keypoints)
+	socket.send('mediapipe-data', keypoints)
 }
 
 onMounted(() => {
-	socket = io('http://127.0.0.1:5000')
-	socket.on('after connect', (msg) => {
+	socket = new SocketioService()
+	socket.listen('after connect', (msg:any) => {
 		console.log(msg.connected)
 	})
+	socket.listen('prediction', (data:any) => {
+		predictions.value?.push(data)
+	})
+	
 	if (videoElement.value && outputCanvas.value) {
 		mediapipeUtils = new MediapipeUtils(videoElement.value, outputCanvas.value, 30, onMediapipeResults)
 	}
-
 })
 
 function startStream(event: any) {
@@ -46,6 +50,10 @@ function stopStream(event: any) {
 			<canvas id="output-canvas" class="out-canvas" ref="outputCanvas" width="720" height="480"></canvas>
 		</div>
 	</div>
+	<h3>Predictions: </h3>
+	<div class="predicted-words-container">
+		<p class="predicted-word" v-for="word in predictions" >{{word}},</p>
+	</div>
 	<button @click="startStream">Start stream</button>
 	<button @click="stopStream">Stop stream</button>
 </template>
@@ -57,5 +65,14 @@ function stopStream(event: any) {
 	justify-content: center;
 	align-items: center;
 
+}
+.predicted-words-container{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+.predicted-word{
+	margin-right: 5px;
 }
 </style>
