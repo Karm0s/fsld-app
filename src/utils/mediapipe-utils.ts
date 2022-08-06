@@ -52,9 +52,9 @@ export class MediapipeUtils {
 		})
 		
 		// Camera element to capture video feed
-		this.camera = new Camera(videoElement, {
+		this.camera = new Camera(this.inputVideo, {
 			onFrame: async () => {
-				await this.holistic.send({ image: videoElement })
+				await this.holistic.send({ image: this.inputVideo })
 			},
 			width: 480,
 			height: 480,
@@ -136,6 +136,7 @@ export class MediapipeUtils {
 
 	// Start webcam capture and mediapipe detection
 	start() {
+		this.resultsBuffer = []
 		this.camera.start()
 	}
 	// Stop webcam capture and mediapipe detection

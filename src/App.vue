@@ -3,10 +3,12 @@ import { ref, onMounted } from 'vue'
 
 import { SocketioService } from './services/SocketioService'
 import {MediapipeUtils, Keypoints} from './utils/mediapipe-utils'
+import Loading from './components/Loading.vue'
 
 let mediapipeUtils!: MediapipeUtils
 let socket:SocketioService
 let showLandmarks = ref<boolean>(false)
+let isLoading = ref<boolean>(false)
 
 let predictions = ref<string[]>(['TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST'])
 const videoElement = ref(null)
@@ -14,6 +16,7 @@ const outputCanvas = ref(null)
 
 
 function onMediapipeResults(keypoints: Keypoints):void {
+	isLoading.value = false
 	console.log('here')
 	return
 	socket.send('mediapipe-data', keypoints)
@@ -34,6 +37,7 @@ onMounted(() => {
 })
 
 function startStream(event: any) {
+	isLoading.value = true
 	mediapipeUtils.start()
 }
 function stopStream(event: any) {
@@ -47,6 +51,7 @@ function toggleShowLandmarks(event: any){
 </script>
 
 <template>
+	<Loading hidden :class="{'loading-visible': isLoading}"></Loading>
 	<div class="header">
 		<h1>French Sign Language Detection</h1>
 		<p>Project made by Yasmine Iarichen for Master's degree graduation</p>
@@ -79,6 +84,9 @@ function toggleShowLandmarks(event: any){
 </template>
 
 <style scoped>
+.loading-visible{
+	display: block;
+}
 .videos-container {
 	position: relative;
 	min-width: 480px;
