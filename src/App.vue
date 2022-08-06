@@ -6,8 +6,9 @@ import {MediapipeUtils, Keypoints} from './utils/mediapipe-utils'
 
 let mediapipeUtils!: MediapipeUtils
 let socket:SocketioService
-let predictions = ref<string[]>([])
+let showLandmarks = ref<boolean>(false)
 
+let predictions = ref<string[]>([])
 const videoElement = ref(null)
 const outputCanvas = ref(null)
 
@@ -36,26 +37,45 @@ function startStream(event: any) {
 function stopStream(event: any) {
 	mediapipeUtils.stop()
 }
+function toggleShowLandmarks(event: any){
+	showLandmarks.value = !showLandmarks.value
+}
 
 </script>
 
 <template>
-	<div class="videos-container">
-		<div>
-			<h2>Input Video</h2>
-			<video id="input-video" class="in-video" ref="videoElement" width="720" height="480"></video>
+	<div class="header">
+		<h1>French Sign Language Detection</h1>
+		<p>Project made by Yasmine Iarichen for Master's degree graduation</p>
+	</div>
+	<div class="content">
+		<div class="controls">
+			<div>
+				<button @click="startStream" class="btn">Start stream</button>
+				<button @click="stopStream" class="btn">Stop stream</button>
+			</div>
+			<div>
+				<input id="show-landmarks-toggle" type="checkbox" @click="toggleShowLandmarks">
+				<label for="show-landmarks-toggle">Show Video Landmarks</label>
+			</div>
 		</div>
-		<div>
-			<h2>Landmarks</h2>
-			<canvas id="output-canvas" class="out-canvas" ref="outputCanvas" width="720" height="480"></canvas>
+		<div class="videos-container">
+			<div v-if="showLandmarks">
+				<h3>Landmarks</h3>
+				<canvas id="output-canvas" class="video-element out-canvas" ref="outputCanvas" width="480" height="480"></canvas>
+			</div>
+			<div v-else>
+				<h3>Input Video</h3>
+				<video id="input-video" class="video-element in-video" ref="videoElement" width="480" height="480"></video>
+			</div>
 		</div>
 	</div>
-	<h3>Predictions: </h3>
-	<div class="predicted-words-container">
-		<p class="predicted-word" v-for="word in predictions" >{{word}},</p>
+	<div class="results">
+		<h3>Predictions: </h3>
+		<div class="predicted-words-container">
+			<p class="predicted-word" v-for="word in predictions" >{{word}},</p>
+		</div>
 	</div>
-	<button @click="startStream">Start stream</button>
-	<button @click="stopStream">Stop stream</button>
 </template>
 
 <style scoped>
@@ -64,7 +84,21 @@ function stopStream(event: any) {
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;
+	position: relative;
 
+}
+.video-element{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+.controls{
+	background-color: white;
+	border-width: 1em;
+	border-color: white;
+	width: 50%;
+	height: 100%;
 }
 .predicted-words-container{
 	display: flex;
@@ -74,5 +108,11 @@ function stopStream(event: any) {
 }
 .predicted-word{
 	margin-right: 5px;
+}
+.content{
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
 }
 </style>
