@@ -20,18 +20,26 @@ export class MediapipeUtils {
 	camera: Camera
 	inputVideo: HTMLVideoElement
 	drawCanvas: HTMLCanvasElement
-	showLandmarks:boolean
+	showLandmarks: boolean
 	canvasCtx: CanvasRenderingContext2D
 	resultsBuffer!: any
 	maxBufferSize: number
 	callbackOnKeypoints: OnKeypointsCallback
+	cameraStarted: boolean = false
 
-	constructor(videoElement: HTMLVideoElement, drawCanvas: HTMLCanvasElement, showLandmarks:boolean = true, maxBufferSize: number = 30, callbackOnKeypoints: OnKeypointsCallback) {
+	constructor(
+		videoElement: HTMLVideoElement,
+		drawCanvas: HTMLCanvasElement,
+		showLandmarks: boolean = true,
+		maxBufferSize: number = 30,
+		callbackOnKeypoints: OnKeypointsCallback
+	) {
 		this.resultsBuffer = []
 		this.callbackOnKeypoints = callbackOnKeypoints
 		this.showLandmarks = showLandmarks
 		this.maxBufferSize = maxBufferSize
 		this.inputVideo = videoElement
+
 		// Holistic model to make predictions
 		this.holistic = new Holistic({
 			locateFile: (file) => {
@@ -46,11 +54,10 @@ export class MediapipeUtils {
 			minDetectionConfidence: 0.5,
 			minTrackingConfidence: 0.5,
 		})
-		
 		this.holistic.onResults((results: any) => {
 			this.onResults(results)
 		})
-		
+
 		// Camera element to capture video feed
 		this.camera = new Camera(this.inputVideo, {
 			onFrame: async () => {
@@ -64,19 +71,20 @@ export class MediapipeUtils {
 		this.canvasCtx = this.drawCanvas.getContext("2d")!
 	}
 
-	saveInBuffer(results: any) : void {
+	saveInBuffer(results: any): void {
 		this.resultsBuffer.push(results)
 	}
 
-	extractKeypoints(results: any) : Keypoints {
+	extractKeypoints(results: any): Keypoints {
 		const pointDeconstructor = function (point: any) {
 			return [point.x, point.y, point.z]
 		}
-		const pose = results.poseLandmarks?.map((point:any) => {
-			let values = [point.x, point.y, point.z]
-			values.push(point.visibility || 0)
-			return values
-		}) || new Array(132).fill(0)
+		const pose =
+			results.poseLandmarks?.map((point: any) => {
+				let values = [point.x, point.y, point.z]
+				values.push(point.visibility || 0)
+				return values
+			}) || new Array(132).fill(0)
 		const face = results.faceLandmarks?.map(pointDeconstructor) || new Array(1404).fill(0)
 		const lh = results.leftHandLandmarks?.map(pointDeconstructor) || new Array(63).fill(0)
 		const rh = results.rightHandLandmarks?.map(pointDeconstructor) || new Array(63).fill(0)
@@ -101,7 +109,7 @@ export class MediapipeUtils {
 		this.canvasCtx.globalCompositeOperation = "destination-atop"
 		this.canvasCtx.drawImage(results.image, 0, 0, this.drawCanvas.width, this.drawCanvas.height)
 
-		if (this.showLandmarks){
+		if (this.showLandmarks) {
 			this.canvasCtx.globalCompositeOperation = "source-over"
 			if (results.poseLandmarks) {
 				drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 2 })
@@ -123,12 +131,10 @@ export class MediapipeUtils {
 	}
 
 	onResults(results: any) {
-		console.log('here in onResults')
-		
 		const keypoints = this.extractKeypoints(results)
 		this.saveInBuffer(keypoints)
 		this.drawLandmarks(results)
-		if (this.resultsBuffer.length == this.maxBufferSize){
+		if (this.resultsBuffer.length === this.maxBufferSize) {
 			this.callbackOnKeypoints(this.resultsBuffer)
 			this.resultsBuffer = []
 		}
@@ -137,17 +143,22 @@ export class MediapipeUtils {
 	// Start webcam capture and mediapipe detection
 	start() {
 		this.resultsBuffer = []
-		this.camera.start()
+		this.cameraStarted = true
+		return this.camera.start()
 	}
 	// Stop webcam capture and mediapipe detection
 	stop() {
 		this.camera.stop()
 	}
 
+	isCameraRunning(): boolean {
+		return this.cameraStarted
+	}
+
 	getResults(): Keypoints[] {
 		return this.resultsBuffer
 	}
-	setShowLandmarks(value:boolean){
+	setShowLandmarks(value: boolean) {
 		this.showLandmarks = value
 	}
 }

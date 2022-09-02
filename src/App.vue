@@ -14,12 +14,13 @@ let predictions = ref<string[]>(['TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST',
 const videoElement = ref(null)
 const outputCanvas = ref(null)
 
+let detectionRunning:boolean = false
 
 function onMediapipeResults(keypoints: Keypoints):void {
-	isLoading.value = false
-	console.log('here')
-	return
-	socket.send('mediapipe-data', keypoints)
+	if (detectionRunning){
+		console.log("sending data")
+		// socket.send('mediapipe-data', keypoints)
+	}
 }
 
 onMounted(() => {
@@ -30,18 +31,21 @@ onMounted(() => {
 	// socket.listen('prediction', (data:any) => {
 	// 	predictions.value?.push(data)
 	// })
-	
 	if (videoElement.value && outputCanvas.value) {
 		mediapipeUtils = new MediapipeUtils(videoElement.value, outputCanvas.value, showLandmarks.value, 30, onMediapipeResults)
 	}
 })
 
-function startStream(event: any) {
+function startDetection(event: any) {
+	detectionRunning = true
+	if (mediapipeUtils.isCameraRunning()) return
 	isLoading.value = true
-	mediapipeUtils.start()
+	mediapipeUtils.start().then(() => {
+			isLoading.value = false
+	})	
 }
-function stopStream(event: any) {
-	mediapipeUtils.stop()
+function PauseDetection(event: any) {
+	detectionRunning = false
 }
 function toggleShowLandmarks(event: any){
 	showLandmarks.value = !showLandmarks.value
@@ -73,8 +77,8 @@ function toggleShowLandmarks(event: any){
 	</div>
 	<div class="controls">
 		<div class="btn-container">
-			<button @click="startStream" class="btn">Start stream</button>
-			<button @click="stopStream" class="btn">Stop stream</button>
+			<button @click="startDetection" class="btn">Start detection</button>
+			<button @click="PauseDetection" class="btn">Pause detection</button>
 		</div>
 		<div>
 			<input id="show-landmarks-toggle" type="checkbox" @click="toggleShowLandmarks">
