@@ -1,15 +1,4 @@
-import {
-	Holistic,
-	FACEMESH_LIPS,
-	POSE_CONNECTIONS,
-	FACEMESH_TESSELATION,
-	HAND_CONNECTIONS,
-	FACEMESH_RIGHT_EYE,
-	FACEMESH_LEFT_EYE,
-	FACEMESH_RIGHT_EYEBROW,
-	FACEMESH_LEFT_EYEBROW,
-	FACEMESH_FACE_OVAL,
-} from "@mediapipe/holistic"
+import { Holistic, POSE_CONNECTIONS, HAND_CONNECTIONS } from "@mediapipe/holistic"
 import { Camera } from "@mediapipe/camera_utils"
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils"
 
@@ -85,10 +74,9 @@ export class MediapipeUtils {
 				values.push(point.visibility || 0)
 				return values
 			}) || new Array(132).fill(0)
-		const face = results.faceLandmarks?.map(pointDeconstructor) || new Array(1404).fill(0)
 		const lh = results.leftHandLandmarks?.map(pointDeconstructor) || new Array(63).fill(0)
 		const rh = results.rightHandLandmarks?.map(pointDeconstructor) || new Array(63).fill(0)
-		let val = [...pose.flat(), ...face.flat(), ...lh.flat(), ...rh.flat()]
+		let val = [...pose.flat(), ...lh.flat(), ...rh.flat()]
 		// console.log(val)
 		return val
 	}
@@ -114,9 +102,6 @@ export class MediapipeUtils {
 			if (results.poseLandmarks) {
 				drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 2 })
 				drawLandmarks(this.canvasCtx, results.poseLandmarks, { color: "#FF0000", lineWidth: 1 })
-			}
-			if (results.faceLandmarks) {
-				drawConnectors(this.canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, { color: "#C0C0C070", lineWidth: 1 })
 			}
 			if (results.leftHandLandmarks) {
 				drawConnectors(this.canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, { color: "#CC0000", lineWidth: 2 })
