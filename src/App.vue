@@ -25,7 +25,7 @@ const serverStatusMessage = computed(() => {
 function onMediapipeResults(keypoints: Keypoints):void {
 	if (detectionRunning){
 		console.log("sending data")
-		// socket.send('mediapipe-data', keypoints)
+		socket.send('mediapipe-data', keypoints)
 	}
 }
 
@@ -167,13 +167,15 @@ function toggleShowLandmarks(event: any){
 }
 .predicted-words-container{
 	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
+	justify-content: flex-start;
+	align-content: flex-start;
+	align-items: flex-start;
+	height: 85%;
+	overflow-y: scroll;
 	flex-wrap: wrap;
 }
 .predicted-word{
-	margin-right: 5px;
+	margin: 4px 4px 4px 4px;
 }
 .content{
 	display: flex;
