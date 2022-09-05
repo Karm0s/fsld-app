@@ -4,6 +4,9 @@ import { ref, onMounted, computed } from 'vue'
 import { SocketioService } from './services/SocketioService'
 import {MediapipeUtils, Keypoints} from './utils/mediapipe-utils'
 import Loading from './components/Loading.vue'
+import PredictionsTable from './components/PredictionsTable.vue'
+
+import { Prediction } from './types/components.interface'
 
 let mediapipeUtils!: MediapipeUtils
 let socket:SocketioService
@@ -11,7 +14,21 @@ let showLandmarks = ref<boolean>(false)
 let isLoading = ref<boolean>(false)
 let serverConnected = ref<boolean>(false)
 
-let predictions = ref<string[]>(['TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST', 'TEST'])
+let predictions = ref<Prediction[]>([
+	{
+		word: "Bonjour",
+		probability: 94
+	},
+	{
+		word: "Oui",
+		probability: 1
+	},
+	{
+		word: "Ecole",
+		probability: 2
+	}
+
+])
 const videoElement = ref(null)
 const outputCanvas = ref(null)
 
@@ -84,8 +101,9 @@ function toggleShowLandmarks(event: any){
 		</div>
 		<div class="predictions">
 			<h3>Predictions</h3>
-			<div class="predicted-words-container">
-				<p class="predicted-word" v-for="word in predictions" >{{word}}</p>
+			<div class="predictions-container">
+				<h4 class="predicted-word">WORD (92%)</h4>
+				<PredictionsTable :predictions="predictions"></PredictionsTable>
 			</div>
 		</div>
 	</div>
@@ -128,20 +146,6 @@ function toggleShowLandmarks(event: any){
 	margin-right: 1rem;
 
 }
-.predictions{
-	width: 480px;
-	margin-left: 1rem;
-	border: dashed;
-	border-width: 3px;
-	border-color: rgb(115, 115, 115);
-	border-radius: 10px;
-}
-.predicted-word{
-	background-color: #4e6ab6;
-	padding: .1em .5em .1em .5em;
-	border-radius: 5px;
-	font-weight: 600;
-}
 .input-video{
 	display: none;
 	position: absolute;
@@ -165,17 +169,25 @@ function toggleShowLandmarks(event: any){
 	border-width: 5px;
 	border-color: white;
 }
-.predicted-words-container{
-	display: flex;
-	justify-content: flex-start;
-	align-content: flex-start;
-	align-items: flex-start;
-	height: 85%;
-	overflow-y: scroll;
-	flex-wrap: wrap;
+.predictions{
+	width: 480px;
+	margin-left: 1rem;
+	border: dashed;
+	border-width: 3px;
+	border-color: rgb(115, 115, 115);
+	border-radius: 10px;
+}
+.predictions-container{
+	width: 80%;
+	margin: auto;
 }
 .predicted-word{
-	margin: 4px 4px 4px 4px;
+	font-size: 1.75rem;
+	padding: .1em .5em .1em .5em;
+	margin: 4px 4px 12px 4px;
+	border-radius: 5px;
+	font-weight: 600;
+	color: rgb(0, 201, 0);
 }
 .content{
 	display: flex;
