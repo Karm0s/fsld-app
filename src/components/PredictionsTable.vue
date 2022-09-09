@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watchEffect } from "vue"
 import { Prediction } from "../types/components.interface"
+import { toStrPercents } from "../common/utils"
 
 const props = defineProps<{
     predictions: Prediction[]
@@ -24,13 +25,13 @@ onMounted(() => {
         <table>
             <tr v-for="entry in firstListHalf">
                 <td>{{entry.word}}</td>
-                <td>{{entry.probability}}%</td>
+                <td>{{toStrPercents(entry.probability)}}%</td>
             </tr>
         </table>
         <table>
             <tr v-for="entry in secondListHalf">
                 <td>{{entry.word}}</td>
-                <td>{{entry.probability}}%</td>
+                <td>{{toStrPercents(entry.probability)}}%</td>
             </tr>
         </table>
     </div>

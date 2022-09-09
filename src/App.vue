@@ -2,7 +2,8 @@
 import { ref, onMounted, computed } from 'vue'
 
 import { SocketioService } from './services/SocketioService'
-import { MediapipeUtils, Keypoints } from './utils/mediapipe-utils'
+import { MediapipeUtils, Keypoints } from './common/mediapipe-utils'
+import { toStrPercents } from './common/utils'
 import Loading from './components/Loading.vue'
 import PredictionsTable from './components/PredictionsTable.vue'
 
@@ -14,21 +15,14 @@ let showLandmarks = ref<boolean>(false)
 let isLoading = ref<boolean>(false)
 let serverConnected = ref<boolean>(false)
 
-let predictions = ref<Prediction[]>([
-	{
-		word: "Bonjour",
-		probability: 94
-	},
-	{
-		word: "Oui",
-		probability: 1
-	},
-	{
-		word: "Ecole",
-		probability: 2
-	}
-
-])
+let mainPrediction = ref<Prediction>({
+	word: 'NONE',
+	probability: 0
+})
+let predictions = ref<Prediction[]>(Array(6).fill({
+	word: 'NONE',
+	probability: 0
+}))
 const videoElement = ref(null)
 const outputCanvas = ref(null)
 
@@ -48,19 +42,21 @@ function onMediapipeResults(keypoints: Keypoints): void {
 
 onMounted(() => {
 	socket = new SocketioService()
-	socket.listen('after connect', (msg: any) => {
+	socket.listen('after connect', () => {
 		serverConnected.value = true
 	})
-	socket.listen('predictions', (data: any) => {
+	socket.listen('predictions', (data: Prediction[]): void => {
 		console.log(data)
+		let maxPredictionValue = Math.max(...data.map(({ probability }: Prediction) => probability))
+		mainPrediction.value = data.find(({ probability }: Prediction) => probability === maxPredictionValue)!
 		predictions.value = data.map(({ word, probability }: Prediction) => {
 			return {
-				word: word,
-				probability: (probability * 100).toFixed(2)
+				word,
+				probability
 			}
 		})
 	})
-	socket.listen('disconnect', (data: any) => {
+	socket.listen('disconnect', () => {
 		serverConnected.value = false
 		detectionRunning = false
 		console.log("Disconnected from server.")
@@ -110,7 +106,8 @@ function toggleShowLandmarks(event: any) {
 		<div class="predictions">
 			<h3>Predictions</h3>
 			<div class="predictions-container">
-				<h4 class="predicted-word">WORD (92%)</h4>
+				<h4 class="predicted-word">{{mainPrediction?.word}} ({{toStrPercents(mainPrediction.probability)}}%)
+				</h4>
 				<PredictionsTable :predictions="predictions"></PredictionsTable>
 			</div>
 		</div>
