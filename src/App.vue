@@ -5,6 +5,8 @@ import { SocketioService } from './services/SocketioService'
 import { MediapipeUtils, Keypoints } from './common/mediapipe-utils'
 import { toStrPercents } from './common/utils'
 import Loading from './components/Loading.vue'
+
+import AppHeader from './components/AppHeader.vue'
 import PredictionsTable from './components/PredictionsTable.vue'
 
 import { Prediction } from './types/components.interface'
@@ -88,11 +90,8 @@ function toggleShowLandmarks(event: any) {
 </script>
 
 <template>
+	<app-header></app-header>
 	<Loading hidden :class="{'loading-visible': isLoading}"></Loading>
-	<div class="header">
-		<h1>French Sign Language Detection</h1>
-		<p>Project made by Yasmine Iarichen for Master's degree graduation</p>
-	</div>
 	<div class="content">
 		<div class="videos-container">
 			<div>

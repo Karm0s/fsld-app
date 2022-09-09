@@ -25,16 +25,8 @@ a:hover {
 }
 
 body {
-	margin: 10px 0 0 0;
-	display: flex;
-	place-items: start;
 	min-width: 320px;
 	min-height: 100vh;
-}
-
-h1 {
-	font-size: 2.5em;
-	line-height: 1.1;
 }
 
 button {
@@ -57,26 +49,7 @@ button:focus-visible {
 	outline: 4px auto -webkit-focus-ring-color;
 }
 
-.card {
-	padding: 2em;
-}
-
 #app {
 	max-width: 1900px;
 	margin: 0 auto;
-	padding: 2rem;
-	text-align: center;
-}
-
-@media (prefers-color-scheme: light) {
-	:root {
-		color: #213547;
-		background-color: #ffffff;
-	}
-	a:hover {
-		color: #747bff;
-	}
-	button {
-		background-color: #f9f9f9;
-	}
 }
