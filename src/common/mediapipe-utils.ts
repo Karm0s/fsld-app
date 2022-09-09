@@ -1,6 +1,6 @@
-import { Holistic, POSE_CONNECTIONS, HAND_CONNECTIONS } from "@mediapipe/holistic"
-import { Camera } from "@mediapipe/camera_utils"
-import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils"
+import { Holistic, POSE_CONNECTIONS, HAND_CONNECTIONS } from '@mediapipe/holistic'
+import { Camera } from '@mediapipe/camera_utils'
+import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 
 export type Keypoints = typeof Array<number>[][]
 export type OnKeypointsCallback = (keypoints: Keypoints) => void
@@ -57,7 +57,7 @@ export class MediapipeUtils {
 		})
 		// Drawing canvas to draw mediapipe landmarks
 		this.drawCanvas = drawCanvas
-		this.canvasCtx = this.drawCanvas.getContext("2d")!
+		this.canvasCtx = this.drawCanvas.getContext('2d')!
 	}
 
 	saveInBuffer(results: any): void {
@@ -89,27 +89,27 @@ export class MediapipeUtils {
 		// }
 
 		// // Only overwrite existing pixels.
-		this.canvasCtx.globalCompositeOperation = "source-in"
-		this.canvasCtx.fillStyle = "transparent"
+		this.canvasCtx.globalCompositeOperation = 'source-in'
+		this.canvasCtx.fillStyle = 'transparent'
 		this.canvasCtx.fillRect(0, 0, this.drawCanvas.width, this.drawCanvas.height)
 
 		// Only overwrite missing pixels.
-		this.canvasCtx.globalCompositeOperation = "destination-atop"
+		this.canvasCtx.globalCompositeOperation = 'destination-atop'
 		this.canvasCtx.drawImage(results.image, 0, 0, this.drawCanvas.width, this.drawCanvas.height)
 
 		if (this.showLandmarks) {
-			this.canvasCtx.globalCompositeOperation = "source-over"
+			this.canvasCtx.globalCompositeOperation = 'source-over'
 			if (results.poseLandmarks) {
-				drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: "#00FF00", lineWidth: 2 })
-				drawLandmarks(this.canvasCtx, results.poseLandmarks, { color: "#FF0000", lineWidth: 1 })
+				drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: '#00FF00', lineWidth: 2 })
+				drawLandmarks(this.canvasCtx, results.poseLandmarks, { color: '#FF0000', lineWidth: 1 })
 			}
 			if (results.leftHandLandmarks) {
-				drawConnectors(this.canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, { color: "#CC0000", lineWidth: 2 })
-				drawLandmarks(this.canvasCtx, results.leftHandLandmarks, { color: "#00FF00", lineWidth: 1 })
+				drawConnectors(this.canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, { color: '#CC0000', lineWidth: 2 })
+				drawLandmarks(this.canvasCtx, results.leftHandLandmarks, { color: '#00FF00', lineWidth: 1 })
 			}
 			if (results.rightHandLandmarks) {
-				drawConnectors(this.canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, { color: "#00CC00", lineWidth: 2 })
-				drawLandmarks(this.canvasCtx, results.rightHandLandmarks, { color: "#FF0000", lineWidth: 1 })
+				drawConnectors(this.canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, { color: '#00CC00', lineWidth: 2 })
+				drawLandmarks(this.canvasCtx, results.rightHandLandmarks, { color: '#FF0000', lineWidth: 1 })
 			}
 		}
 		this.canvasCtx.restore()

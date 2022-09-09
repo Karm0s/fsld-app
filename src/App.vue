@@ -19,7 +19,7 @@ let mainPrediction = ref<Prediction>({
 	word: 'NONE',
 	probability: 0
 })
-let predictions = ref<Prediction[]>(Array(6).fill({
+let predictions = ref<Prediction[]>(Array(20).fill({
 	word: 'NONE',
 	probability: 0
 }))
@@ -220,7 +220,7 @@ function toggleShowLandmarks(event: any) {
 	position: absolute;
 	bottom: 0;
 	right: 0;
-	margin: 0 10px 10px 0;
+	margin: 0 10px 0px 0;
 	border-radius: 10px;
 	padding: 4px 10px 4px 10px;
 }
