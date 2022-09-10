@@ -17,6 +17,7 @@ let socket: SocketioService
 let showLandmarks = ref<boolean>(false)
 let isLoading = ref<boolean>(false)
 let serverConnected = ref<boolean>(false)
+let detectionRunning = ref<boolean>(false)
 
 let mainPrediction = ref<Prediction>({
 	word: 'NONE',
@@ -29,7 +30,6 @@ let predictions = ref<Prediction[]>(Array(20).fill({
 const videoElement = ref(null)
 const outputCanvas = ref(null)
 
-let detectionRunning: boolean = false
 
 const serverStatusMessage = computed(() => {
 	if (serverConnected.value) return "server connected"
@@ -37,7 +37,7 @@ const serverStatusMessage = computed(() => {
 })
 
 function onMediapipeResults(keypoints: Keypoints): void {
-	if (detectionRunning) {
+	if (detectionRunning.value) {
 		console.log("sending data")
 		socket.send('mediapipe-data', keypoints)
 	}
@@ -61,33 +61,35 @@ onMounted(() => {
 	})
 	socket.listen('disconnect', () => {
 		serverConnected.value = false
-		detectionRunning = false
+		detectionRunning.value = false
 		console.log("Disconnected from server.")
 	})
 	socket.listen('connect_error', (data: any) => {
 		console.warn("Server connection error.")
 	})
 	if (videoElement.value && outputCanvas.value) {
-		mediapipeUtils = new MediapipeUtils(videoElement.value, outputCanvas.value, showLandmarks.value, 30, onMediapipeResults)
+		mediapipeUtils = new MediapipeUtils(videoElement.value, outputCanvas.value, showLandmarks.value, 30, onMediapipeResults, hideCanvasCurtain)
 	}
 })
 
 function startDetection(event: any) {
-	detectionRunning = true
+	detectionRunning.value = true
 	if (mediapipeUtils.isCameraRunning()) return
 	isLoading.value = true
-	mediapipeUtils.start().then(() => {
-		isLoading.value = false
-	})
+	mediapipeUtils.start()
 }
 function pauseDetection(event: any) {
-	detectionRunning = false
+	detectionRunning.value = false
 }
 function toggleShowLandmarks(event: any) {
 	showLandmarks.value = !showLandmarks.value
 	mediapipeUtils.setShowLandmarks(showLandmarks.value)
 }
 
+function hideCanvasCurtain(): void {
+	isLoading.value = false
+	detectionRunning.value = true
+}
 </script>
 
 <template>
@@ -97,6 +99,12 @@ function toggleShowLandmarks(event: any) {
 	</Loading>
 	<div class="content">
 		<div class="videos-container">
+			<div class="canvas-curtain"
+				 v-if="!detectionRunning">
+				<img class="curtain-image"
+					 src="./assets/webcam.png"
+					 alt="">
+			</div>
 			<h3 class="container-title">Video Feed</h3>
 			<video id="input-video"
 				   class="video-element input-video"
@@ -161,12 +169,30 @@ function toggleShowLandmarks(event: any) {
 	display: block;
 }
 
+.canvas-curtain {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1;
+	background-color: #292929;
+}
+
+.curtain-image {
+	width: 50%;
+	height: 50%;
+	margin-bottom: 30px;
+}
+
 .videos-container {
 	position: relative;
 	min-width: 480px;
 	min-height: 480px;
 	margin-right: 1rem;
-
 }
 
 .container-title {
@@ -198,6 +224,7 @@ function toggleShowLandmarks(event: any) {
 	bottom: 0;
 	left: 50%;
 	transform: translate(-50%, -10%);
+	z-index: 2;
 }
 
 .controls {

@@ -15,19 +15,23 @@ export class MediapipeUtils {
 	maxBufferSize: number
 	callbackOnKeypoints: OnKeypointsCallback
 	cameraStarted: boolean = false
+	isFirstFrameReady: boolean = false
+	onFirstFrameCallback!: Function
 
 	constructor(
 		videoElement: HTMLVideoElement,
 		drawCanvas: HTMLCanvasElement,
 		showLandmarks: boolean = true,
 		maxBufferSize: number = 30,
-		callbackOnKeypoints: OnKeypointsCallback
+		callbackOnKeypoints: OnKeypointsCallback,
+		onFirstFrameCallback: Function
 	) {
 		this.resultsBuffer = []
 		this.callbackOnKeypoints = callbackOnKeypoints
 		this.showLandmarks = showLandmarks
 		this.maxBufferSize = maxBufferSize
 		this.inputVideo = videoElement
+		this.onFirstFrameCallback = onFirstFrameCallback
 
 		// Holistic model to make predictions
 		this.holistic = new Holistic({
@@ -82,13 +86,14 @@ export class MediapipeUtils {
 	}
 
 	drawLandmarks(results: any) {
+		if (!this.isFirstFrameReady) {
+			this.isFirstFrameReady = true
+			this.onFirstFrameCallback()
+		}
 		this.canvasCtx.save()
 		this.canvasCtx.clearRect(0, 0, this.drawCanvas.width, this.drawCanvas.height)
-		// if (results.segmentationMask) {
-		// 	this.canvasCtx.drawImage(results.segmentationMask, 0, 0, this.drawCanvas.width, this.drawCanvas.height)
-		// }
 
-		// // Only overwrite existing pixels.
+		// Only overwrite existing pixels.
 		this.canvasCtx.globalCompositeOperation = 'source-in'
 		this.canvasCtx.fillStyle = 'transparent'
 		this.canvasCtx.fillRect(0, 0, this.drawCanvas.width, this.drawCanvas.height)
@@ -129,7 +134,7 @@ export class MediapipeUtils {
 	start() {
 		this.resultsBuffer = []
 		this.cameraStarted = true
-		return this.camera.start()
+		this.camera.start()
 	}
 	// Stop webcam capture and mediapipe detection
 	stop() {
