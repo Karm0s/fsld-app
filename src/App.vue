@@ -8,6 +8,7 @@ import Loading from './components/Loading.vue'
 
 import AppHeader from './components/AppHeader.vue'
 import PredictionsTable from './components/PredictionsTable.vue'
+import AppControls from './components/AppControls.vue'
 
 import { Prediction } from './types/components.interface'
 
@@ -79,7 +80,7 @@ function startDetection(event: any) {
 		isLoading.value = false
 	})
 }
-function PauseDetection(event: any) {
+function pauseDetection(event: any) {
 	detectionRunning = false
 }
 function toggleShowLandmarks(event: any) {
@@ -91,19 +92,29 @@ function toggleShowLandmarks(event: any) {
 
 <template>
 	<app-header></app-header>
-	<Loading hidden :class="{'loading-visible': isLoading}"></Loading>
+	<Loading hidden
+			 :class="{'loading-visible': isLoading}">
+	</Loading>
 	<div class="content">
 		<div class="videos-container">
-			<div>
-				<h3>Video Feed</h3>
-				<video id="input-video" class="video-element input-video" ref="videoElement" width="480"
-																																																	height="480"></video>
-				<canvas id="output-canvas" class="video-element output-canvas" ref="outputCanvas" width="480"
-																																																	height="480"></canvas>
-			</div>
+			<h3 class="container-title">Video Feed</h3>
+			<video id="input-video"
+				   class="video-element input-video"
+				   ref="videoElement"
+				   width="480"></video>
+			<canvas id="output-canvas"
+					class="video-element output-canvas"
+					ref="outputCanvas"
+					width="480"
+					height="480"></canvas>
+			<app-controls class="app-controls"
+						  @start-detection="startDetection"
+						  @pause-detection="pauseDetection"
+						  @toggle-landmarks="toggleShowLandmarks">
+			</app-controls>
 		</div>
 		<div class="predictions">
-			<h3>Predictions</h3>
+			<h3 class="container-title">Predictions</h3>
 			<div class="predictions-container">
 				<h4 class="predicted-word">{{mainPrediction?.word}} ({{toStrPercents(mainPrediction.probability)}}%)
 				</h4>
@@ -111,33 +122,35 @@ function toggleShowLandmarks(event: any) {
 			</div>
 		</div>
 	</div>
-	<div class="controls">
-		<div class="btn-container">
-			<button @click="startDetection" class="btn">Start detection</button>
-			<button @click="PauseDetection" class="btn">Pause detection</button>
-		</div>
-		<div>
-			<input id="show-landmarks-toggle" type="checkbox" @click="toggleShowLandmarks">
-			<label for="show-landmarks-toggle">Show Video Landmarks</label>
-		</div>
-	</div>
-	<div class="server-status-wrapper" :class="[serverConnected? 'status-connected':'status-disconnected']">
+	<div class="server-status-wrapper"
+		 :class="[serverConnected? 'status-connected':'status-disconnected']">
 		<p class="status-text">{{ serverStatusMessage }}</p>
-		<svg v-if="serverConnected" class="icon confirm-icon" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-																																															width="405.272px"
-																																															height="405.272px"
-																																															viewBox="0 0 405.272 405.272"
-																																															style="enable-background:new 0 0 405.272 405.272;"
-																																															xml:space="preserve">
+		<svg v-if="serverConnected"
+			 class="icon confirm-icon"
+			 version="1.1"
+			 id="Capa_1"
+			 xmlns="http://www.w3.org/2000/svg"
+			 xmlns:xlink="http://www.w3.org/1999/xlink"
+			 x="0px"
+			 y="0px"
+			 width="405.272px"
+			 height="405.272px"
+			 viewBox="0 0 405.272 405.272"
+			 style="enable-background:new 0 0 405.272 405.272;"
+			 xml:space="preserve">
 			<g>
 				<path d="M393.401,124.425L179.603,338.208c-15.832,15.835-41.514,15.835-57.361,0L11.878,227.836
 				c-15.838-15.835-15.838-41.52,0-57.358c15.841-15.841,41.521-15.841,57.355-0.006l81.698,81.699L336.037,67.064
 				c15.841-15.841,41.523-15.829,57.358,0C409.23,82.902,409.23,108.578,393.401,124.425z" />
 			</g>
 		</svg>
-		<svg v-else class="icon cross-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg v-else
+			 class="icon cross-icon"
+			 viewBox="0 0 24 24"
+			 fill="none"
+			 xmlns="http://www.w3.org/2000/svg">
 			<path d="M6.22566 4.81096C5.83514 4.42044 5.20197 4.42044 4.81145 4.81096C4.42092 5.20148 4.42092 5.83465 4.81145 6.22517L10.5862 11.9999L4.81151 17.7746C4.42098 18.1651 4.42098 18.7983 4.81151 19.1888C5.20203 19.5793 5.8352 19.5793 6.22572 19.1888L12.0004 13.4141L17.7751 19.1888C18.1656 19.5793 18.7988 19.5793 19.1893 19.1888C19.5798 18.7983 19.5798 18.1651 19.1893 17.7746L13.4146 11.9999L19.1893 6.22517C19.5799 5.83465 19.5799 5.20148 19.1893 4.81096C18.7988 4.42044 18.1657 4.42044 17.7751 4.81096L12.0004 10.5857L6.22566 4.81096Z"
-																																																fill="black" />
+				  fill="black" />
 		</svg>
 
 	</div>
@@ -154,6 +167,10 @@ function toggleShowLandmarks(event: any) {
 	min-height: 480px;
 	margin-right: 1rem;
 
+}
+
+.container-title {
+	text-align: center;
 }
 
 .input-video {
@@ -173,6 +190,14 @@ function toggleShowLandmarks(event: any) {
 	border-radius: 10px;
 	border-color: white;
 	border-width: 5px;
+}
+
+.app-controls {
+	width: 100%;
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translate(-50%, -10%);
 }
 
 .controls {

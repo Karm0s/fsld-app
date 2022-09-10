@@ -36,7 +36,6 @@ button {
 	font-size: 1em;
 	font-weight: 500;
 	font-family: inherit;
-	margin: 0 1em 0 1em;
 	background-color: #4e6ab6;
 	cursor: pointer;
 	transition: background-color 0.25s;
