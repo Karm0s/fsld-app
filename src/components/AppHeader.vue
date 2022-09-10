@@ -12,7 +12,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #3b3b3b;
+    background-color: var(--secondary-color);
     min-height: 80px;
     padding: 0 20px 0 20px;
 }

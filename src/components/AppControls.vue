@@ -3,14 +3,17 @@ const emit = defineEmits(['start-detection', 'pause-detection', 'toggle-landmark
 </script>
 <template>
     <div class="controls-wrapper">
-        <h3 class="controls-title">Controls</h3>
+        <!-- <h3 class="controls-title">Controls</h3> -->
         <div class="buttons-container">
             <button @click="$emit('start-detection')">start detection</button>
             <button @click="$emit('pause-detection')">pause detection</button>
         </div>
         <div class="checkbox-container">
-            <input id="show-landmarks-toggle" type="checkbox" @click="$emit('toggle-landmarks')">
-            <label for="show-landmarks-toggle">show landmarks</label>
+            <input id="show-landmarks-toggle"
+                   type="checkbox"
+                   @click="$emit('toggle-landmarks')">
+            <label for="show-landmarks-toggle"
+                   class="show-landmarks-label">show landmarks</label>
         </div>
     </div>
 </template>
@@ -19,11 +22,11 @@ const emit = defineEmits(['start-detection', 'pause-detection', 'toggle-landmark
     display: flex;
     align-items: center;
     flex-direction: column;
-    background-color: rgba(59, 59, 59, 0.85);
+    background-color: rgba(40, 45, 56, 0.80);
     max-height: 150px;
     max-width: 350px;
     border-radius: 5px;
-    padding: 10px 0 10px 0;
+    padding: 15px 0 10px 0;
 }
 
 .controls-title {
@@ -42,5 +45,9 @@ const emit = defineEmits(['start-detection', 'pause-detection', 'toggle-landmark
 
 button {
     margin: 0px 4px 0px 4px;
+}
+
+.show-landmarks-label {
+    margin-left: 8px;
 }
 </style> 

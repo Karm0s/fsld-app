@@ -47,7 +47,7 @@ onMounted(() => {
 
 table {
     width: 75%;
-    border: 2px solid gray;
+    background-color: #313744;
     border-radius: 4px;
     border-spacing: 0;
 }
@@ -58,6 +58,6 @@ td {
 }
 
 tr:nth-child(even) {
-    background-color: gray;
+    background-color: #404858;
 }
 </style>

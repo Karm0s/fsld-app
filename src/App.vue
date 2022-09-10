@@ -9,6 +9,7 @@ import Loading from './components/Loading.vue'
 import AppHeader from './components/AppHeader.vue'
 import PredictionsTable from './components/PredictionsTable.vue'
 import AppControls from './components/AppControls.vue'
+import PredictionsHistory from './components/PredictionsHistory.vue'
 
 import { Prediction } from './types/components.interface'
 
@@ -131,6 +132,7 @@ function hideCanvasCurtain(): void {
 			</div>
 		</div>
 	</div>
+	<predictions-history></predictions-history>
 	<div class="server-status-wrapper"
 		 :class="[serverConnected? 'status-connected':'status-disconnected']">
 		<p class="status-text">{{ serverStatusMessage }}</p>
@@ -185,7 +187,7 @@ function hideCanvasCurtain(): void {
 	justify-content: center;
 	border-radius: 10px;
 	z-index: 0;
-	background-color: #292929;
+	background-color: var(--secondary-color);
 }
 
 .curtain-image {
@@ -251,11 +253,12 @@ function hideCanvasCurtain(): void {
 .predictions-container {
 	width: 480px;
 	margin-left: 1rem;
-	border: dashed;
+	/* border: dashed;
 	border-width: 3px;
 	border-color: rgb(115, 115, 115);
+	border-radius: 10px; */
 	border-radius: 10px;
-	background-color: #292929;
+	background-color: var(--secondary-color);
 }
 
 .predictions {
