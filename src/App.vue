@@ -121,10 +121,11 @@ function hideCanvasCurtain(): void {
 						  @toggle-landmarks="toggleShowLandmarks">
 			</app-controls>
 		</div>
-		<div class="predictions">
+		<div class="predictions-container">
 			<h3 class="title">Predictions</h3>
-			<div class="predictions-container">
-				<h4 class="predicted-word">{{mainPrediction?.word}} ({{toStrPercents(mainPrediction.probability)}}%)
+			<div class="predictions">
+				<h4 class="predicted-word title">{{mainPrediction?.word}}
+					({{toStrPercents(mainPrediction.probability)}}%)
 				</h4>
 				<PredictionsTable :predictions="predictions"></PredictionsTable>
 			</div>
@@ -209,6 +210,7 @@ function hideCanvasCurtain(): void {
 	position: absolute;
 	left: 50%;
 	transform: translateX(-50%);
+	z-index: 2;
 }
 
 .input-video {
@@ -246,16 +248,17 @@ function hideCanvasCurtain(): void {
 	border-color: white;
 }
 
-.predictions {
+.predictions-container {
 	width: 480px;
 	margin-left: 1rem;
 	border: dashed;
 	border-width: 3px;
 	border-color: rgb(115, 115, 115);
 	border-radius: 10px;
+	background-color: #292929;
 }
 
-.predictions-container {
+.predictions {
 	width: 80%;
 	margin: auto;
 }
