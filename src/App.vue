@@ -99,13 +99,13 @@ function hideCanvasCurtain(): void {
 	</Loading>
 	<div class="content">
 		<div class="videos-container">
+			<h3 class="video-container-title title">Video Feed</h3>
 			<div class="canvas-curtain"
 				 v-if="!detectionRunning">
 				<img class="curtain-image"
 					 src="./assets/webcam.png"
 					 alt="">
 			</div>
-			<h3 class="container-title">Video Feed</h3>
 			<video id="input-video"
 				   class="video-element input-video"
 				   ref="videoElement"
@@ -122,7 +122,7 @@ function hideCanvasCurtain(): void {
 			</app-controls>
 		</div>
 		<div class="predictions">
-			<h3 class="container-title">Predictions</h3>
+			<h3 class="title">Predictions</h3>
 			<div class="predictions-container">
 				<h4 class="predicted-word">{{mainPrediction?.word}} ({{toStrPercents(mainPrediction.probability)}}%)
 				</h4>
@@ -169,6 +169,10 @@ function hideCanvasCurtain(): void {
 	display: block;
 }
 
+.content {
+	margin-top: 35px;
+}
+
 .canvas-curtain {
 	position: absolute;
 	top: 0;
@@ -178,7 +182,8 @@ function hideCanvasCurtain(): void {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 1;
+	border-radius: 10px;
+	z-index: 0;
 	background-color: #292929;
 }
 
@@ -195,8 +200,15 @@ function hideCanvasCurtain(): void {
 	margin-right: 1rem;
 }
 
-.container-title {
+.title {
 	text-align: center;
+}
+
+.video-container-title {
+	top: 0;
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
 }
 
 .input-video {
