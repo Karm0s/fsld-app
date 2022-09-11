@@ -11,7 +11,7 @@ import PredictionsTable from './components/PredictionsTable.vue'
 import AppControls from './components/AppControls.vue'
 import PredictionsHistory from './components/PredictionsHistory.vue'
 
-import { Prediction } from './types/components.interface'
+import { Prediction, HistoryItem } from './types/components.interface'
 
 let mediapipeUtils!: MediapipeUtils
 let socket: SocketioService
@@ -28,14 +28,9 @@ let predictions = ref<Prediction[]>(Array(20).fill({
 	word: 'NONE',
 	probability: 0
 }))
+let predictionsHistory = ref<HistoryItem[]>([])
 const videoElement = ref(null)
 const outputCanvas = ref(null)
-
-
-const serverStatusMessage = computed(() => {
-	if (serverConnected.value) return "server connected"
-	return "server disconnected"
-})
 
 function onMediapipeResults(keypoints: Keypoints): void {
 	if (detectionRunning.value) {
@@ -44,15 +39,45 @@ function onMediapipeResults(keypoints: Keypoints): void {
 	}
 }
 
+function startDetection(event: any) {
+	detectionRunning.value = true
+	if (mediapipeUtils.isCameraRunning()) return
+	isLoading.value = true
+	mediapipeUtils.start()
+}
+function pauseDetection(event: any) {
+	detectionRunning.value = false
+}
+function toggleShowLandmarks(event: any) {
+	showLandmarks.value = !showLandmarks.value
+	mediapipeUtils.setShowLandmarks(showLandmarks.value)
+}
+
+function hideCanvasCurtain(): void {
+	isLoading.value = false
+	detectionRunning.value = true
+}
+
+function findMaxPrediction(predictions: Prediction[]) {
+	let maxPredictionValue = Math.max(...predictions.map(({ probability }: Prediction) => probability))
+	return predictions.find(({ probability }: Prediction) => probability === maxPredictionValue)!
+}
+
+function pushToHistory(item: Prediction) {
+	predictionsHistory.value.push({
+		id: predictionsHistory.value.length,
+		word: item.word
+	})
+}
+
 onMounted(() => {
 	socket = new SocketioService()
 	socket.listen('after connect', () => {
 		serverConnected.value = true
 	})
 	socket.listen('predictions', (data: Prediction[]): void => {
-		console.log(data)
-		let maxPredictionValue = Math.max(...data.map(({ probability }: Prediction) => probability))
-		mainPrediction.value = data.find(({ probability }: Prediction) => probability === maxPredictionValue)!
+		mainPrediction.value = findMaxPrediction(data)
+		pushToHistory(mainPrediction.value)
 		predictions.value = data.map(({ word, probability }: Prediction) => {
 			return {
 				word,
@@ -73,24 +98,10 @@ onMounted(() => {
 	}
 })
 
-function startDetection(event: any) {
-	detectionRunning.value = true
-	if (mediapipeUtils.isCameraRunning()) return
-	isLoading.value = true
-	mediapipeUtils.start()
-}
-function pauseDetection(event: any) {
-	detectionRunning.value = false
-}
-function toggleShowLandmarks(event: any) {
-	showLandmarks.value = !showLandmarks.value
-	mediapipeUtils.setShowLandmarks(showLandmarks.value)
-}
-
-function hideCanvasCurtain(): void {
-	isLoading.value = false
-	detectionRunning.value = true
-}
+const serverStatusMessage = computed(() => {
+	if (serverConnected.value) return "server connected"
+	return "server disconnected"
+})
 </script>
 
 <template>
@@ -98,7 +109,7 @@ function hideCanvasCurtain(): void {
 	<Loading hidden
 			 :class="{'loading-visible': isLoading}">
 	</Loading>
-	<div class="content">
+	<div class="app-body">
 		<div class="videos-container">
 			<h3 class="video-container-title title">Video Feed</h3>
 			<div class="canvas-curtain"
@@ -131,8 +142,9 @@ function hideCanvasCurtain(): void {
 				<PredictionsTable :predictions="predictions"></PredictionsTable>
 			</div>
 		</div>
+		<predictions-history class="history-component"
+							 :items="predictionsHistory"></predictions-history>
 	</div>
-	<predictions-history></predictions-history>
 	<div class="server-status-wrapper"
 		 :class="[serverConnected? 'status-connected':'status-disconnected']">
 		<p class="status-text">{{ serverStatusMessage }}</p>
@@ -172,15 +184,25 @@ function hideCanvasCurtain(): void {
 	display: block;
 }
 
-.content {
-	margin-top: 35px;
+.app-body {
+	margin: 25px auto 0 auto;
+	max-width: 1000px;
+	display: grid;
+	grid-template-columns: min-content min-content;
+	grid-template-rows: min-content min-content;
+	gap: 15px 10px;
+}
+
+.history-component {
+	grid-column: span 2;
+	justify-self: stretch;
 }
 
 .canvas-curtain {
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 100%;
+	width: 480px;
 	height: 100%;
 	display: flex;
 	align-items: center;
@@ -200,7 +222,6 @@ function hideCanvasCurtain(): void {
 	position: relative;
 	min-width: 480px;
 	min-height: 480px;
-	margin-right: 1rem;
 }
 
 .title {
@@ -252,11 +273,6 @@ function hideCanvasCurtain(): void {
 
 .predictions-container {
 	width: 480px;
-	margin-left: 1rem;
-	/* border: dashed;
-	border-width: 3px;
-	border-color: rgb(115, 115, 115);
-	border-radius: 10px; */
 	border-radius: 10px;
 	background-color: var(--secondary-color);
 }
@@ -273,13 +289,6 @@ function hideCanvasCurtain(): void {
 	border-radius: 5px;
 	font-weight: 600;
 	color: rgb(0, 201, 0);
-}
-
-.content {
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: stretch;
 }
 
 .server-status-wrapper {
