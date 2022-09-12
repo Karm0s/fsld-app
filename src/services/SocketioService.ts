@@ -1,4 +1,4 @@
-import { io, Socket } from "socket.io-client"
+import { io, Socket } from 'socket.io-client'
 
 type EventListenerCallback = (payload: any) => void
 
@@ -7,7 +7,8 @@ export class SocketioService {
 	socket: Socket
 
 	constructor() {
-		this.URL = "http://127.0.0.1:5000"
+		this.URL = import.meta.env.VITE_SERVER_URL!
+		console.log(this.URL)
 		this.socket = io(this.URL)
 	}
 
