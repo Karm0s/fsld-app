@@ -59,12 +59,14 @@ function hideCanvasCurtain(): void {
 }
 
 function pushToHistory(item: Word) {
-	console.log(item)
 	if (wordsHistory.value.length && wordsHistory.value[wordsHistory.value.length - 1].word === item.word) return
 	wordsHistory.value.push({
-		id: wordsHistory.value.length,
+		id: Math.floor(Date.now() * Math.random()),
 		word: item.word
 	})
+	if (wordsHistory.value.length > 10) {
+		wordsHistory.value.shift()
+	}
 }
 
 onMounted(() => {

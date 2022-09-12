@@ -6,14 +6,6 @@ import { HistoryItem } from '../types/components.interface'
 let props = defineProps<{
     item: HistoryItem
 }>()
-
-const emit = defineEmits(['expired'])
-
-onMounted(() => {
-    setTimeout(() => {
-        emit('expired', props.item.id)
-    }, 5000)
-})
 </script>
 <template>
     <div class="word">
@@ -23,7 +15,7 @@ onMounted(() => {
 <style scoped>
 .word {
     padding: 5px 10px 5px 10px;
-    margin: 0 2px 8px 2px;
+    margin: 0 2px 0 2px;
     background-color: var(--primary-color);
     border-radius: 5px;
     color: rgb(0, 201, 0);

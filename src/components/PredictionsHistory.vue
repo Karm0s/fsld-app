@@ -22,7 +22,6 @@ function removeItemFromHistory(item: HistoryItem) {
             <TransitionGroup name="history-items">
                 <predictions-history-item v-for="item in props.items"
                                           :key="item.id"
-                                          @expired="removeItemFromHistory(item)"
                                           :item="item"></predictions-history-item>
             </TransitionGroup>
         </div>
@@ -47,10 +46,10 @@ function removeItemFromHistory(item: HistoryItem) {
     height: 100%;
 }
 
-.history-items-move,
+/* .history-items-move, */
 .history-items-enter-active,
 .history-items-leave-active {
-    transition: all 0.8s ease;
+    transition: all 0.5s ease;
 }
 
 .history-items-enter-from,
@@ -58,7 +57,7 @@ function removeItemFromHistory(item: HistoryItem) {
     opacity: 0;
 }
 
-.history-items-leave-active {
+/* .history-items-leave-active {
     position: absolute;
-}
+} */
 </style>
