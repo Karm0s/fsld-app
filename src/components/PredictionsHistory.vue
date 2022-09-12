@@ -12,7 +12,8 @@ let props = defineProps<{
 }>()
 
 function removeItemFromHistory(item: HistoryItem) {
-    props.items.splice(props.items.indexOf(item), 1)
+    const itemToDelete = props.items.find(i => i.id === item.id)!
+    props.items.splice(props.items.indexOf(itemToDelete), 1)
 }
 </script>
 <template>
@@ -46,11 +47,7 @@ function removeItemFromHistory(item: HistoryItem) {
     height: 100%;
 }
 
-.history-items-move {
-    transition: all 2s ease;
-    opacity: 0;
-}
-
+.history-items-move,
 .history-items-enter-active,
 .history-items-leave-active {
     transition: all 0.8s ease;

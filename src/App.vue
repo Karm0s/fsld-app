@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, withScopeId } from 'vue'
 
 import { SocketioService } from './services/SocketioService'
 import { MediapipeUtils, Keypoints } from './common/mediapipe-utils'
@@ -11,7 +11,7 @@ import PredictionsTable from './components/PredictionsTable.vue'
 import AppControls from './components/AppControls.vue'
 import PredictionsHistory from './components/PredictionsHistory.vue'
 
-import { Prediction, HistoryItem } from './types/components.interface'
+import { Word, HistoryItem, ModelPrediction } from './types/components.interface'
 
 let mediapipeUtils!: MediapipeUtils
 let socket: SocketioService
@@ -20,15 +20,15 @@ let isLoading = ref<boolean>(false)
 let serverConnected = ref<boolean>(false)
 let detectionRunning = ref<boolean>(false)
 
-let mainPrediction = ref<Prediction>({
+let mainWord = ref<Word>({
 	word: 'NONE',
 	probability: 0
 })
-let predictions = ref<Prediction[]>(Array(20).fill({
+let words = ref<Word[]>(Array(20).fill({
 	word: 'NONE',
 	probability: 0
 }))
-let predictionsHistory = ref<HistoryItem[]>([])
+let wordsHistory = ref<HistoryItem[]>([])
 const videoElement = ref(null)
 const outputCanvas = ref(null)
 
@@ -58,14 +58,11 @@ function hideCanvasCurtain(): void {
 	detectionRunning.value = true
 }
 
-function findMaxPrediction(predictions: Prediction[]) {
-	let maxPredictionValue = Math.max(...predictions.map(({ probability }: Prediction) => probability))
-	return predictions.find(({ probability }: Prediction) => probability === maxPredictionValue)!
-}
-
-function pushToHistory(item: Prediction) {
-	predictionsHistory.value.push({
-		id: predictionsHistory.value.length,
+function pushToHistory(item: Word) {
+	console.log(item)
+	if (wordsHistory.value.length && wordsHistory.value[wordsHistory.value.length - 1].word === item.word) return
+	wordsHistory.value.push({
+		id: wordsHistory.value.length,
 		word: item.word
 	})
 }
@@ -75,15 +72,10 @@ onMounted(() => {
 	socket.listen('after connect', () => {
 		serverConnected.value = true
 	})
-	socket.listen('predictions', (data: Prediction[]): void => {
-		mainPrediction.value = findMaxPrediction(data)
-		pushToHistory(mainPrediction.value)
-		predictions.value = data.map(({ word, probability }: Prediction) => {
-			return {
-				word,
-				probability
-			}
-		})
+	socket.listen('predictions', ({ maxProbability, probabilities }: ModelPrediction): void => {
+		mainWord.value = maxProbability
+		pushToHistory(mainWord.value)
+		words.value = probabilities
 	})
 	socket.listen('disconnect', () => {
 		serverConnected.value = false
@@ -136,14 +128,14 @@ const serverStatusMessage = computed(() => {
 		<div class="predictions-container">
 			<h3 class="title">Predictions</h3>
 			<div class="predictions">
-				<h4 class="predicted-word title">{{mainPrediction?.word}}
-					({{toStrPercents(mainPrediction.probability)}}%)
+				<h4 class="predicted-word title">{{mainWord?.word}}
+					({{toStrPercents(mainWord.probability)}}%)
 				</h4>
-				<PredictionsTable :predictions="predictions"></PredictionsTable>
+				<PredictionsTable :words="words"></PredictionsTable>
 			</div>
 		</div>
 		<predictions-history class="history-component"
-							 :items="predictionsHistory"></predictions-history>
+							 :items="wordsHistory"></predictions-history>
 	</div>
 	<div class="server-status-wrapper"
 		 :class="[serverConnected? 'status-connected':'status-disconnected']">

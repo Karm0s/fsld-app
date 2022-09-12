@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { onMounted, ref, watchEffect } from "vue"
-import { Prediction } from "../types/components.interface"
+import { Word } from "../types/components.interface"
 import { toStrPercents } from "../common/utils"
 
 const props = defineProps<{
-    predictions: Prediction[]
+    words: Word[]
 }>()
 let middleIndex: number = 0
-let firstListHalf = ref<Prediction[]>()
-let secondListHalf = ref<Prediction[]>()
+let firstListHalf = ref<Word[]>()
+let secondListHalf = ref<Word[]>()
 
 onMounted(() => {
-    watchEffect(() => middleIndex = Math.ceil(props.predictions.length / 2))
+    watchEffect(() => middleIndex = Math.ceil(props.words.length / 2))
     console.log(middleIndex)
 
-    watchEffect(() => firstListHalf.value = props.predictions.slice(0, middleIndex))
-    watchEffect(() => secondListHalf.value = props.predictions.slice(middleIndex, props.predictions.length))
+    watchEffect(() => firstListHalf.value = props.words.slice(0, middleIndex))
+    watchEffect(() => secondListHalf.value = props.words.slice(middleIndex, props.words.length))
 
 })
 

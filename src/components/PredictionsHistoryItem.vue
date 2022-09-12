@@ -11,7 +11,7 @@ const emit = defineEmits(['expired'])
 
 onMounted(() => {
     setTimeout(() => {
-        emit('expired', props.item)
+        emit('expired', props.item.id)
     }, 5000)
 })
 </script>
