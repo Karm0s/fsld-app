@@ -36,7 +36,7 @@ export class MediapipeUtils {
 		// Holistic model to make predictions
 		this.holistic = new Holistic({
 			locateFile: (file) => {
-				return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5/${file}`
+				return `./mediapipe/holistic/${file}`
 			},
 		})
 		this.holistic.setOptions({
