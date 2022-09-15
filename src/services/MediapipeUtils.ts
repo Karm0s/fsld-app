@@ -1,12 +1,20 @@
-import { Holistic, POSE_CONNECTIONS, HAND_CONNECTIONS } from '@mediapipe/holistic'
-import { Camera } from '@mediapipe/camera_utils'
-import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
+import '@mediapipe/holistic'
+import '@mediapipe/camera_utils'
+import '@mediapipe/drawing_utils'
+
+declare var Holistic: any
+declare var POSE_CONNECTIONS: any
+declare var HAND_CONNECTIONS: any
+declare var Camera: any
+declare var drawConnectors: any
+declare var drawLandmarks: any
 
 export type Keypoints = typeof Array<number>[][]
 export type OnKeypointsCallback = (keypoints: Keypoints) => void
+
 export class MediapipeUtils {
-	holistic: Holistic
-	camera: Camera
+	holistic: typeof Holistic
+	camera: typeof Camera
 	inputVideo: HTMLVideoElement
 	drawCanvas: HTMLCanvasElement
 	showLandmarks: boolean
@@ -35,8 +43,8 @@ export class MediapipeUtils {
 
 		// Holistic model to make predictions
 		this.holistic = new Holistic({
-			locateFile: (file) => {
-				return `mediapipe/holistic/${file}`
+			locateFile: (file: any) => {
+				return `/mediapipe/holistic/${file}`
 			},
 		})
 		this.holistic.setOptions({

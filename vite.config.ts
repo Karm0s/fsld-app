@@ -6,6 +6,6 @@ export default defineConfig({
 	plugins: [vue()],
 	build: {
 		sourcemap: true,
+		rollupOptions: {},
 	},
-	assetsInclude: ['**/*.data', '**/*.wasm', '**/*.tflite', '**/*.binarypb'],
 })

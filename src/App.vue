@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, withScopeId } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 import { SocketioService } from './services/SocketioService'
-import { MediapipeUtils, Keypoints } from './common/mediapipe-utils'
 import { toStrPercents } from './common/utils'
 import Loading from './components/Loading.vue'
 
@@ -12,6 +11,7 @@ import AppControls from './components/AppControls.vue'
 import PredictionsHistory from './components/PredictionsHistory.vue'
 
 import { Word, HistoryItem, ModelPrediction } from './types/components.interface'
+import { MediapipeUtils, Keypoints } from './services/MediapipeUtils'
 
 let mediapipeUtils!: MediapipeUtils
 let socket: SocketioService
