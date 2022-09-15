@@ -75,6 +75,7 @@ onMounted(() => {
 		serverConnected.value = true
 	})
 	socket.listen('predictions', ({ maxProbability, probabilities }: ModelPrediction): void => {
+		if (maxProbability.probability < 0.99) return
 		mainWord.value = maxProbability
 		pushToHistory(mainWord.value)
 		words.value = probabilities
