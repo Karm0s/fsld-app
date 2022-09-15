@@ -132,9 +132,10 @@ export class MediapipeUtils {
 		const keypoints = this.extractKeypoints(results)
 		this.saveInBuffer(keypoints)
 		this.drawLandmarks(results)
-		if (this.resultsBuffer.length >= this.maxBufferSize) {
+		if (this.resultsBuffer.length === this.maxBufferSize) {
 			this.resultsBuffer = this.resultsBuffer.slice(-this.maxBufferSize)
 			this.callbackOnKeypoints(this.resultsBuffer)
+			this.resultsBuffer = []
 		}
 	}
 
