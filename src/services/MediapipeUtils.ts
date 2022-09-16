@@ -1,20 +1,26 @@
-import '@mediapipe/holistic'
-import '@mediapipe/camera_utils'
-import '@mediapipe/drawing_utils'
+// DEV IMPORTS
+import { Holistic, HAND_CONNECTIONS, POSE_CONNECTIONS } from '@mediapipe/holistic'
+import { Camera } from '@mediapipe/camera_utils'
+import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 
-declare var Holistic: any
-declare var POSE_CONNECTIONS: any
-declare var HAND_CONNECTIONS: any
-declare var Camera: any
-declare var drawConnectors: any
-declare var drawLandmarks: any
+// PRODUCTION IMPORTS
+// import '@mediapipe/holistic'
+// import '@mediapipe/camera_utils'
+// import '@mediapipe/drawing_utils'
+
+// declare var Holistic: any
+// declare var POSE_CONNECTIONS: any
+// declare var HAND_CONNECTIONS: any
+// declare var Camera: any
+// declare var drawConnectors: any
+// declare var drawLandmarks: any
 
 export type Keypoints = typeof Array<number>[][]
 export type OnKeypointsCallback = (keypoints: Keypoints) => void
 
 export class MediapipeUtils {
-	holistic: typeof Holistic
-	camera: typeof Camera
+	holistic: Holistic
+	camera: Camera
 	inputVideo: HTMLVideoElement
 	drawCanvas: HTMLCanvasElement
 	showLandmarks: boolean
