@@ -94,8 +94,8 @@ onMounted(() => {
 })
 
 const serverStatusMessage = computed(() => {
-	if (serverConnected.value) return "server connected"
-	return "server disconnected"
+	if (serverConnected.value) return "serveur connecté"
+	return "serveur deconnecté"
 })
 </script>
 
@@ -106,7 +106,7 @@ const serverStatusMessage = computed(() => {
 	</Loading>
 	<div class="app-body">
 		<div class="videos-container">
-			<h3 class="video-container-title title">Video Feed</h3>
+			<h3 class="video-container-title title">Flux Vidéo</h3>
 			<div class="canvas-curtain"
 				 v-if="!detectionRunning">
 				<img class="curtain-image"
@@ -129,7 +129,7 @@ const serverStatusMessage = computed(() => {
 			</app-controls>
 		</div>
 		<div class="predictions-container">
-			<h3 class="title">Predictions</h3>
+			<h3 class="title">Prédictions</h3>
 			<div class="predictions">
 				<h4 class="predicted-word title">{{mainWord?.word}}
 					({{toStrPercents(mainWord.probability)}}%)

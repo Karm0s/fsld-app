@@ -3,8 +3,8 @@
 </script>
 <template>
     <header>
-        <h1 class="header-title">French Sign Language Detection</h1>
-        <h5 class="header-author">Made By Yasmine Iarichen</h5>
+        <h1 class="header-title">Détection de la Langue des Signes Française</h1>
+        <h5 class="header-author">Fait par Yasmine Iarichen</h5>
     </header>
 </template>
 <style scoped>
