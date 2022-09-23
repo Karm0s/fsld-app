@@ -3,7 +3,7 @@
 </script>
 <template>
     <header>
-        <h1 class="header-title">Détection de la Langue des Signes Française</h1>
+        <h1 class="header-title">Reconnaissance de la Langue des Signes Française</h1>
         <h5 class="header-author">Fait par Yasmine Iarichen</h5>
     </header>
 </template>
