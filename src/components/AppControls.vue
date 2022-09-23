@@ -5,15 +5,15 @@ const emit = defineEmits(['start-detection', 'pause-detection', 'toggle-landmark
     <div class="controls-wrapper">
         <!-- <h3 class="controls-title">Controls</h3> -->
         <div class="buttons-container">
-            <button @click="$emit('start-detection')">start detection</button>
-            <button @click="$emit('pause-detection')">pause detection</button>
+            <button @click="$emit('start-detection')">début détection</button>
+            <button @click="$emit('pause-detection')">pause détection</button>
         </div>
         <div class="checkbox-container">
             <input id="show-landmarks-toggle"
                    type="checkbox"
                    @click="$emit('toggle-landmarks')">
             <label for="show-landmarks-toggle"
-                   class="show-landmarks-label">show landmarks</label>
+                   class="show-landmarks-label">afficher les landmarks</label>
         </div>
     </div>
 </template>
